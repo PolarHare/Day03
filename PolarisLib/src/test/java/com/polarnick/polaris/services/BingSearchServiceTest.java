@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class BingSearchServiceTest {
 
-    public static final long MAX_WAIT_MS = 2000;
+    public static final long MAX_WAIT_MS = 4000;
 
     public static final String ACCOUNT_KEY = "cEbtMs0M2NMFC9DQg4TogGtkuorbFQhjaW3dzhQjEVg=";
     public static final int IMAGE_LIMIT = 4;
