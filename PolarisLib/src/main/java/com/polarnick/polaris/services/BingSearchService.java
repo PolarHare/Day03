@@ -25,6 +25,7 @@ import java.util.concurrent.Executors;
  */
 public class BingSearchService {
 
+    private static final String ENCODING_CHARSET = "UTF-8";
     /**
      * Arguments: - query text(String), image width(int), image height(int), image count(int)
      */
@@ -69,13 +70,13 @@ public class BingSearchService {
     }
 
     public List<ResultImage> search(String text, @Nullable AsyncCallback<ResultImage> nextImageLoaded) throws IOException, JSONException {
-        URL url = new URL(String.format(IMAGE_SEARCH, URLEncoder.encode(text, "UTF-8"),
+        URL url = new URL(String.format(IMAGE_SEARCH, URLEncoder.encode(text, ENCODING_CHARSET),
                 optimalWidth, optimalHeight, imageLimit, filterStrictness));
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Authorization", "Basic " + accountKeyEnc);
         conn.setRequestProperty("Accept", "application/json");
-        String sb = HTTPUtils.readContent(conn.getInputStream());
+        String sb = HTTPUtils.readContent(conn.getInputStream(), ENCODING_CHARSET);
         conn.disconnect();
 
         JSONArray results = new JSONObject(sb).getJSONObject("d").getJSONArray("results");

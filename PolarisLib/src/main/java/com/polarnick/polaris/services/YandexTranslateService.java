@@ -66,14 +66,14 @@ public class YandexTranslateService {
 
     private String recognizeLanguage(String text) throws IOException {
         String url = String.format(DETECT_LANG_API_URL_PREFIX, key, URLEncoder.encode(text, ENCODING_CHARSET));
-        String responseContent = HTTPUtils.getContent(url);
+        String responseContent = HTTPUtils.getContent(url, ENCODING_CHARSET);
         DetectLanguageResult detectionResult = new Gson().fromJson(responseContent, DetectLanguageResult.class);
         return detectionResult.getLang();
     }
 
     private String translate(final String text, final String toLanguage) throws IOException {
         String url = String.format(TRANSLATE_API_URL_PREFIX, key, URLEncoder.encode(text, ENCODING_CHARSET), toLanguage);
-        String responseContent = HTTPUtils.getContent(url);
+        String responseContent = HTTPUtils.getContent(url, ENCODING_CHARSET);
         TranslatedResult translatedResult = new Gson().fromJson(responseContent, TranslatedResult.class);
         return translatedResult.getConcatanatedText();
     }

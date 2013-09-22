@@ -13,13 +13,13 @@ import java.net.URL;
  */
 public class HTTPUtils {
 
-    public static String getContent(String urlString) throws IOException {
+    public static String getContent(String urlString, String encodingCharset) throws IOException {
         URL url = new URL(urlString);
-        return readContent(url.openStream());
+        return readContent(url.openStream(), encodingCharset);
     }
 
-    public static String readContent(InputStream stream) throws IOException {
-        BufferedReader in = new BufferedReader(new InputStreamReader(stream));
+    public static String readContent(InputStream stream, String encodingCharset) throws IOException {
+        BufferedReader in = new BufferedReader(new InputStreamReader(stream, encodingCharset));
         StringBuilder result = new StringBuilder();
         String inputLine = in.readLine();
         while (inputLine != null) {

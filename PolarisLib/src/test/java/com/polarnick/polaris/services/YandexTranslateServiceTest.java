@@ -25,40 +25,40 @@ public class YandexTranslateServiceTest {
     public static final List<String> EN_RU = Lists.newArrayList("en", "ru");
     public static final List<String> RU_EN = Lists.newArrayList("ru", "en");
 
-    public static final String TREE_TEXT_RU = "дерево";
-    public static final String TREE_TEXT_EN = "tree";
+    public static final String TEXT_RU = "зеленое дерево";
+    public static final String TEXT_EN = "green tree";
 
     private final YandexTranslateService translatorEnRu = new YandexTranslateService(ACCOUNT_KEY, EN_RU);
     private final YandexTranslateService translatorRuEn = new YandexTranslateService(ACCOUNT_KEY, RU_EN);
 
     @Test
     public void testTranslating() throws IOException {
-        Assert.assertEquals(TREE_TEXT_RU, translatorEnRu.translate(TREE_TEXT_EN));
-        Assert.assertEquals(TREE_TEXT_EN, translatorEnRu.translate(TREE_TEXT_RU));
-        Assert.assertEquals(TREE_TEXT_RU, translatorRuEn.translate(TREE_TEXT_EN));
-        Assert.assertEquals(TREE_TEXT_EN, translatorRuEn.translate(TREE_TEXT_RU));
+        Assert.assertEquals(TEXT_RU, translatorEnRu.translate(TEXT_EN));
+        Assert.assertEquals(TEXT_EN, translatorEnRu.translate(TEXT_RU));
+        Assert.assertEquals(TEXT_RU, translatorRuEn.translate(TEXT_EN));
+        Assert.assertEquals(TEXT_EN, translatorRuEn.translate(TEXT_RU));
     }
 
-//    @Test
-//    public void testTranslatingAsync() throws InterruptedException {
-//        final CountDownLatch latch = new CountDownLatch(1);
-//        final AtomicReference<String> translated = new AtomicReference<String>(null);
-//        translatorRuEn.translateAsync(TREE_TEXT_EN, new AsyncCallbackWithFailures<String, IOException>() {
-//
-//            @Override
-//            public void onSuccess(String result) {
-//                Assert.assertEquals(TREE_TEXT_RU, result);
-//                translated.set(result);
-//                latch.countDown();
-//            }
-//
-//            @Override
-//            public void onFailure(IOException reason) {
-//                Assert.fail();
-//            }
-//        });
-//        latch.await(MAX_WAIT_MS, TimeUnit.MILLISECONDS);
-//        Assert.assertEquals(TREE_TEXT_RU, translated.get());
-//    }
+    @Test
+    public void testTranslatingAsync() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        final AtomicReference<String> translated = new AtomicReference<String>(null);
+        translatorRuEn.translateAsync(TEXT_EN, new AsyncCallbackWithFailures<String, IOException>() {
+
+            @Override
+            public void onSuccess(String result) {
+                Assert.assertEquals(TEXT_RU, result);
+                translated.set(result);
+                latch.countDown();
+            }
+
+            @Override
+            public void onFailure(IOException reason) {
+                Assert.fail();
+            }
+        });
+        latch.await(MAX_WAIT_MS, TimeUnit.MILLISECONDS);
+        Assert.assertEquals(TEXT_RU, translated.get());
+    }
 
 }
