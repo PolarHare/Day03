@@ -1,0 +1,9 @@
+# IDEA project files
+.idea/
+*.iml
+
+# Ignore target folder
+.target/
+
+# But not apk file
+!target/*.apk
