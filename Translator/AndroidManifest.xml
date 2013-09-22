@@ -9,7 +9,7 @@
             android:targetSdkVersion="16"/>
 
     <application
-            android:icon="@drawable/cat_icon"
+            android:icon="@drawable/book_icon"
             android:label="Rotate and Scale"
             android:theme="@android:style/Theme.NoTitleBar">
         <activity android:name=".MainActivity">
