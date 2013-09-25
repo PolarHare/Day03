@@ -1,10 +1,12 @@
 package com.polarnick.polaris.utils;
 
-import java.io.BufferedReader;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClientBuilder;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
+import java.io.StringWriter;
 
 /**
  * Date: 21.09.13
@@ -14,20 +16,11 @@ import java.net.URL;
 public class HTTPUtils {
 
     public static String getContent(String urlString, String encodingCharset) throws IOException {
-        URL url = new URL(urlString);
-        return readContent(url.openStream(), encodingCharset);
-    }
-
-    public static String readContent(InputStream stream, String encodingCharset) throws IOException {
-        BufferedReader in = new BufferedReader(new InputStreamReader(stream, encodingCharset));
-        StringBuilder result = new StringBuilder();
-        String inputLine = in.readLine();
-        while (inputLine != null) {
-            result.append(inputLine);
-            inputLine = in.readLine();
-        }
-        in.close();
-        return result.toString();
+        HttpGet getRequest = new HttpGet(urlString);
+        HttpResponse httpResponse = HttpClientBuilder.create().build().execute(getRequest);
+        StringWriter stringWriter = new StringWriter();
+        IOUtils.copy(httpResponse.getEntity().getContent(), stringWriter, encodingCharset);
+        return stringWriter.toString();
     }
 
 }

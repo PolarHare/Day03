@@ -1,17 +1,20 @@
 package com.polarnick.polaris.services;
 
+
 import com.polarnick.polaris.concurrency.AsyncCallback;
 import com.polarnick.polaris.concurrency.AsyncCallbackWithFailures;
-import com.polarnick.polaris.utils.HTTPUtils;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.io.StringWriter;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +36,7 @@ public class BingSearchService {
             "?Sources=%%27image%%27" +
             "&Query=%%27" + "%s" + "%%27" +//search query
             "&ImageFilters=%%27Size%%3AWidth%%3A" + "%d" + "%%2BSize%%3AHeight%%3A" + "%d" + "%%27" +//image width and height recommendation
-            "&$top=%d" +//image count limit
+            "&$top=" + "%d" +//image count limit
             "&Adult=%%27" + "%s" + "%%27";//filter strictness
 
     private final String accountKeyEnc;
@@ -70,16 +73,18 @@ public class BingSearchService {
     }
 
     public List<ResultImage> search(String text, @Nullable AsyncCallback<ResultImage> nextImageLoaded) throws IOException, JSONException {
-        URL url = new URL(String.format(IMAGE_SEARCH, URLEncoder.encode(text, ENCODING_CHARSET),
-                optimalWidth, optimalHeight, imageLimit, filterStrictness));
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("GET");
-        conn.setRequestProperty("Authorization", "Basic " + accountKeyEnc);
-        conn.setRequestProperty("Accept", "application/json");
-        String sb = HTTPUtils.readContent(conn.getInputStream(), ENCODING_CHARSET);
-        conn.disconnect();
+        String url = String.format(IMAGE_SEARCH, URLEncoder.encode(text, ENCODING_CHARSET),
+                optimalWidth, optimalHeight, imageLimit, filterStrictness);
 
-        JSONArray results = new JSONObject(sb).getJSONObject("d").getJSONArray("results");
+        HttpGet getRequest = new HttpGet(url);
+        getRequest.setHeader("Authorization", "Basic " + accountKeyEnc);
+        getRequest.setHeader("Accept", "application/json");
+        HttpResponse httpResponse = HttpClientBuilder.create().build().execute(getRequest);
+        StringWriter stringWriter = new StringWriter();
+        IOUtils.copy(httpResponse.getEntity().getContent(), stringWriter, ENCODING_CHARSET);
+        String content = stringWriter.toString();
+
+        JSONArray results = new JSONObject(content).getJSONObject("d").getJSONArray("results");
         List<ResultImage> resultImages = new ArrayList<ResultImage>();
         for (int i = 0; i < results.length(); i++) {
             JSONObject object = results.getJSONObject(i);

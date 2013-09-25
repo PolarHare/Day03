@@ -26,7 +26,7 @@ public class BingSearchServiceTest {
     public static final int OPTIMAL_WIDTH = 400;
     public static final int OPTIMAL_HEIGHT = 400;
 
-    public static final String simpleQuery = "tree";
+    public static final String simpleQuery = "зеленое дерево";
     public static final String queryToBeFiltered = "sex";
 
     private final BingSearchService bingSearchServiceNoFilter = new BingSearchService(
