@@ -26,14 +26,14 @@ public class YandexTranslateService {
 
     private final ExecutorService threadsPool;
     private final String key;
-    private final List<String> priorityLanguages;
+    private final List<String> languages;
 
-    public YandexTranslateService(String key, List<String> priorityLanguages) {
+    public YandexTranslateService(String key, List<String> languages) {
         Preconditions.checkNotNull(key);
-        Preconditions.checkArgument(priorityLanguages.size() >= 2, "There are must be at least two languages!");
+        Preconditions.checkArgument(languages.size() == 2, "There are must be exactly two languages!");
         this.threadsPool = Executors.newCachedThreadPool();
         this.key = key;
-        this.priorityLanguages = priorityLanguages;
+        this.languages = languages;
     }
 
     public void translateAsync(final String text, final AsyncCallbackWithFailures<String, IOException> callback) {
@@ -44,7 +44,7 @@ public class YandexTranslateService {
                     String translated = translate(text);
                     callback.onSuccess(translated);
                 } catch (IOException e) {
-                    callback.onFailure(e);
+                    callback.onFailure(new IOException("Internet connection problem!", e));
                 }
             }
         });
@@ -53,14 +53,15 @@ public class YandexTranslateService {
     public String translate(String text) throws IOException {
         String fromLanguage = recognizeLanguage(text);
         String toLanguage = null;
-        for (String language : priorityLanguages) {
+        for (String language : languages) {
             if (!language.equalsIgnoreCase(fromLanguage)) {
                 toLanguage = language;
                 break;
             }
         }
         Preconditions.checkState(toLanguage != null, "ToLanguage should be always found. At least because of" +
-                " that priorityLanguages has two or more languages!");
+                " that there are two languages chosen!");
+
         return translate(text, toLanguage);
     }
 

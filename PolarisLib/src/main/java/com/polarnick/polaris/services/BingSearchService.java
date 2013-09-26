@@ -64,9 +64,9 @@ public class BingSearchService {
                     List<ResultImage> resultImages = search(text, nextImageLoaded);
                     allImagesLoaded.onSuccess(resultImages);
                 } catch (IOException e) {
-                    allImagesLoaded.onFailure(e);
+                    allImagesLoaded.onFailure(new IOException("Internet connection problem!", e));
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    allImagesLoaded.onFailure(new IllegalStateException("Problem with JSON Bing API!", e));
                 }
             }
         });
