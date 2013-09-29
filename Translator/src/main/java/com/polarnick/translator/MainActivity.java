@@ -1,4 +1,4 @@
-package java.com.polarnick.translator;
+package com.polarnick.translator;
 
 import android.app.Activity;
 import android.os.Bundle;
