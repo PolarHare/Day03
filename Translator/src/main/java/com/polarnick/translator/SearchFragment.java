@@ -8,11 +8,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 
 /**
  * @author Никита
  */
 public class SearchFragment extends ExtFragment {
+    private RecentQueriesAdapter adapter;
     private boolean dual;
     private EditText searchInput;
 
@@ -25,6 +27,7 @@ public class SearchFragment extends ExtFragment {
         @Override
         public void onClick(View view) {
             String query = searchInput.getText().toString();
+            adapter.addQuery(query);
             if (dual) {
                 ResultsFragment resultsFragment = findFragmentById(R.id.results_fragment);
                 if (resultsFragment == null || !query.equalsIgnoreCase(resultsFragment.getCurrentQuery())) {
@@ -48,10 +51,13 @@ public class SearchFragment extends ExtFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        adapter = new RecentQueriesAdapter(getActivity());
+
         View second = findViewById(R.id.results_fragment);
         dual = second != null && second.getVisibility() == View.VISIBLE;
 
         searchInput = findViewById(R.id.search_input);
         this.<Button>findViewById(R.id.search_button).setOnClickListener(SEARCH_BUTTON_LISTENER);
+        this.<ListView>findViewById(R.id.recent_queries).setAdapter(adapter);
     }
 }
