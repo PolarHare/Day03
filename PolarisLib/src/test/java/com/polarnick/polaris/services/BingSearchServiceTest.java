@@ -104,9 +104,9 @@ public class BingSearchServiceTest {
     private void assertResultImage(BingSearchService.ResultImage resultImage) {
         Assert.assertNotNull(resultImage);
         Assert.assertNotNull(resultImage.getImageURL());
-        Assert.assertNotEquals("", resultImage.getImageURL());
-        Assert.assertNotEquals(0, resultImage.getWidth());
-        Assert.assertNotEquals(0, resultImage.getHeight());
+        Assert.assertNotSame("", resultImage.getImageURL());
+        Assert.assertNotSame(0, resultImage.getWidth());
+        Assert.assertNotSame(0, resultImage.getHeight());
     }
 
 }

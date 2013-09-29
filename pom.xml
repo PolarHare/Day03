@@ -5,12 +5,13 @@
     <groupId>com.polarnick.day03</groupId>
     <artifactId>Day03</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>Day03</name>
+
     <modules>
         <module>PolarisLib</module>
         <module>Translator</module>
     </modules>
-    <packaging>pom</packaging>
-    <name>Day03</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
