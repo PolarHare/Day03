@@ -32,7 +32,7 @@ public class RecentQueriesAdapter extends BaseAdapter {
 
     public void addQuery(String query) {
         queries.add(query);
-        settings.edit().putString(QUERIES_INDEX, new Gson().toJson(queries.toArray()));
+        settings.edit().putString(QUERIES_INDEX, new Gson().toJson(queries.toArray())).commit();
         notifyDataSetChanged();
     }
 
