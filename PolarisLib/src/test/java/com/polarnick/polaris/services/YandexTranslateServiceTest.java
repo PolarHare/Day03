@@ -1,11 +1,11 @@
 package com.polarnick.polaris.services;
 
-import com.google.common.collect.Lists;
 import com.polarnick.polaris.concurrency.AsyncCallbackWithFailures;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -22,8 +22,8 @@ public class YandexTranslateServiceTest {
 
     public static final String ACCOUNT_KEY = "trnsl.1.1.20130921T184657Z.2b7426257ae60b23.5a54cb565a7471b7462b5f3bef1895e281bfc9d8";
 
-    public static final List<String> EN_RU = Lists.newArrayList("en", "ru");
-    public static final List<String> RU_EN = Lists.newArrayList("ru", "en");
+    public static final List<String> EN_RU = Arrays.asList("en", "ru");
+    public static final List<String> RU_EN = Arrays.asList("ru", "en");
 
     public static final String TEXT_RU = "зеленое дерево";
     public static final String TEXT_EN = "green tree";
