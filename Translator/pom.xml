@@ -18,7 +18,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <platform.version>4.1.1.4</platform.version>
-        <platform.target>16</platform.target>
+        <platform.target>18</platform.target>
         <android.plugin.version>3.6.0</android.plugin.version>
     </properties>
 
@@ -45,6 +45,11 @@
             <artifactId>android</artifactId>
             <version>${platform.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.polarnick.polaris</groupId>
+            <artifactId>PolarisLib</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
