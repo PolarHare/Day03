@@ -7,7 +7,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -79,7 +79,7 @@ public class BingSearchService {
         HttpGet getRequest = new HttpGet(url);
         getRequest.setHeader("Authorization", "Basic " + accountKeyEnc);
         getRequest.setHeader("Accept", "application/json");
-        HttpResponse httpResponse = HttpClientBuilder.create().build().execute(getRequest);
+        HttpResponse httpResponse = new DefaultHttpClient().execute(getRequest);
         StringWriter stringWriter = new StringWriter();
         IOUtils.copy(httpResponse.getEntity().getContent(), stringWriter, ENCODING_CHARSET);
         String content = stringWriter.toString();
