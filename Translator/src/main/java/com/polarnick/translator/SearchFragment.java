@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -23,29 +24,42 @@ public class SearchFragment extends ExtFragment {
         return inflater.inflate(R.layout.fragment_search, container, false);
     }
 
-    private final View.OnClickListener SEARCH_BUTTON_LISTENER = new View.OnClickListener() {
+    private final View.OnClickListener searchButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            String query = searchInput.getText().toString();
-            adapter.addQuery(query);
-            if (dual) {
-                ResultsFragment resultsFragment = findFragmentById(R.id.results_fragment);
-                if (resultsFragment == null || !query.equalsIgnoreCase(resultsFragment.getCurrentQuery())) {
-                    resultsFragment = ResultsFragment.newInstance(query);
-
-                    getFragmentManager().beginTransaction()
-                            .replace(R.id.results_fragment, resultsFragment)
-                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                            .commit();
-                }
-            } else {
-                Intent intent = new Intent();
-                intent.setClass(getActivity(), ResultsActivity.class);
-                intent.putExtra(ResultsFragment.QUERY_INDEX, query);
-                startActivity(intent);
-            }
+         search(searchInput.getText().toString());
         }
     };
+
+    private final ListView.OnItemClickListener recentQueryClickListener = new ListView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            search(adapter.getQuery(position));
+        }
+    };
+
+    private void search(String query) {
+        query = query.trim();
+        if (query.isEmpty()) return;
+
+        adapter.addQuery(query);
+        if (dual) {
+            ResultsFragment resultsFragment = findFragmentById(R.id.results_fragment);
+            if (resultsFragment == null || !query.equalsIgnoreCase(resultsFragment.getCurrentQuery())) {
+                resultsFragment = ResultsFragment.newInstance(query);
+
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.results_fragment, resultsFragment)
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                        .commit();
+            }
+        } else {
+            Intent intent = new Intent();
+            intent.setClass(getActivity(), ResultsActivity.class);
+            intent.putExtra(ResultsFragment.QUERY_INDEX, query);
+            startActivity(intent);
+        }
+    }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -57,7 +71,9 @@ public class SearchFragment extends ExtFragment {
         dual = second != null && second.getVisibility() == View.VISIBLE;
 
         searchInput = findViewById(R.id.search_input);
-        this.<Button>findViewById(R.id.search_button).setOnClickListener(SEARCH_BUTTON_LISTENER);
-        this.<ListView>findViewById(R.id.recent_queries).setAdapter(adapter);
+        this.<Button>findViewById(R.id.search_button).setOnClickListener(searchButtonListener);
+        ListView listView = this.findViewById(R.id.recent_queries);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(recentQueryClickListener);
     }
 }

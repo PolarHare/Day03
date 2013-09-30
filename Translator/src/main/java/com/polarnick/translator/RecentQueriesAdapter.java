@@ -18,21 +18,23 @@ import java.util.List;
 public class RecentQueriesAdapter extends BaseAdapter {
     private static final String PREFS_NAME = "recent";
     private static final String QUERIES_INDEX = "queries";
-    private Context context;
+    private static final Gson GSON = new Gson();
+    private final Context context;
 
-    private List<String> queries;
-    private SharedPreferences settings;
+    private final List<String> queries;
+    private final SharedPreferences settings;
 
     public RecentQueriesAdapter(Context context) {
         this.context = context;
 
         settings = context.getSharedPreferences(PREFS_NAME, 0);
-        queries = Lists.newArrayList(new Gson().<String[]>fromJson(settings.getString(QUERIES_INDEX, "[]"), String[].class));
+        queries = Lists.newArrayList(GSON.<String[]>fromJson(settings.getString(QUERIES_INDEX, "[]"), String[].class));
     }
 
     public void addQuery(String query) {
+        queries.remove(query);
         queries.add(query);
-        settings.edit().putString(QUERIES_INDEX, new Gson().toJson(queries.toArray())).commit();
+        settings.edit().putString(QUERIES_INDEX, GSON.toJson(queries.toArray())).commit();
         notifyDataSetChanged();
     }
 
@@ -57,12 +59,17 @@ public class RecentQueriesAdapter extends BaseAdapter {
         if (convertView == null) {
             textView = new TextView(context);
             textView.setLayoutParams(new ListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            textView.setPadding(10, 15, 10, 15);
         } else {
             textView = (TextView) convertView;
         }
 
-        textView.setText(queries.get(queries.size() - position - 1));
+        textView.setText(getQuery(position));
 
         return textView;
+    }
+
+    public String getQuery(int i) {
+        return queries.get(queries.size() - i - 1);
     }
 }

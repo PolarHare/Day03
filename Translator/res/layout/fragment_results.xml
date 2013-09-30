@@ -17,13 +17,9 @@
                   android:layout_height="wrap_content"
                   android:textSize="20sp" />
     </LinearLayout>
-    <GridView android:id="@+id/images"
+    <ListView android:id="@+id/images"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:numColumns="auto_fit"
-              android:columnWidth="150dp"
-              android:verticalSpacing="5dp"
-              android:horizontalSpacing="5dp"
-              android:stretchMode="columnWidth"
-              android:gravity="center" />
+              android:divider="@android:color/transparent"
+              android:dividerHeight="10dp" />
 </LinearLayout>

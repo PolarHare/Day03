@@ -1,16 +1,19 @@
 package com.polarnick.translator;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
-import com.polarnick.polaris.concurrency.AsyncCallback;
+import android.widget.ListView;
+import com.polarnick.polaris.concurrency.AsyncCallbackWithFailures;
 import com.polarnick.polaris.services.BingSearchService;
 
 import java.net.URL;
@@ -24,22 +27,23 @@ import java.util.List;
 public class ImageAdapter extends BaseAdapter {
     private static final String ACCOUNT_KEY = "cEbtMs0M2NMFC9DQg4TogGtkuorbFQhjaW3dzhQjEVg=";
     private static final int IMAGE_LIMIT = 10;
-    private static final int OPTIMAL_WIDTH = 150;
-    private static final int OPTIMAL_HEIGHT = 150;
-    private static final BingSearchService bingSearchServiceStrict = new BingSearchService(
-                ACCOUNT_KEY, OPTIMAL_WIDTH, OPTIMAL_HEIGHT, IMAGE_LIMIT, BingSearchService.FilterStrictness.STRICT);
 
-    private Context context;
-    private List<Bitmap> images = new ArrayList<Bitmap>();
+    private final BingSearchService bingSearchServiceStrict;
+    private final Context context;
+    private final String query;
+    private final int imageSize;
+    private final List<Bitmap> images = new ArrayList<Bitmap>();
+    private final Handler handler = new Handler();
 
     public ImageAdapter(Context context, String query) {
         this.context = context;
-        bingSearchServiceStrict.searchAsync(query, null, new AsyncCallback<BingSearchService.ResultImage>() {
-            @Override
-            public void onSuccess(BingSearchService.ResultImage resultImage) {
-                new ImageDownloadTask().execute(resultImage.getImageURL());
-            }
-        });
+        this.query = query;
+
+        Resources resources = context.getResources();
+        imageSize = (int) resources.getDimension(R.dimen.image_size);
+
+        bingSearchServiceStrict = new BingSearchService(
+                ACCOUNT_KEY, imageSize, imageSize, IMAGE_LIMIT, BingSearchService.FilterStrictness.STRICT);
     }
 
     @Override
@@ -57,37 +61,74 @@ public class ImageAdapter extends BaseAdapter {
         return 0;
     }
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        ImageView imageView;
-        if (convertView == null) {
-            imageView = new ImageView(context);
-            imageView.setLayoutParams(new GridView.LayoutParams(OPTIMAL_WIDTH, OPTIMAL_HEIGHT));
-            imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        } else {
-            imageView = (ImageView) convertView;
-        }
+    public void loadMore(final Runnable onLoadDone) {
+        final int offset = images.size();
+        bingSearchServiceStrict.searchAsync(query, offset, new AsyncCallbackWithFailures<List<BingSearchService.ResultImage>, Exception>() {
+            @Override
+            public void onFailure(Exception reason) {
+                onLoadDone.run();
+            }
 
-        imageView.setImageBitmap(images.get(position));
-
-        return imageView;
+            @Override
+            public void onSuccess(final List<BingSearchService.ResultImage> resultImages) {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        String[] urls = new String[resultImages.size()];
+                        int cnt = 0;
+                        for (BingSearchService.ResultImage image : resultImages) {
+                            images.add(null);
+                            urls[cnt++] = image.getImageURL();
+                        }
+                        new ImagesDownloadTask(offset).execute(urls);
+                    }
+                });
+                onLoadDone.run();
+            }
+        }, null);
     }
 
-    private class ImageDownloadTask extends AsyncTask<String, Void, Bitmap> {
+    @Override
+    public View getView(int position, View view, ViewGroup parent) {
+        if (view == null) {
+            view = LayoutInflater.from(context).inflate(R.layout.image_item, parent, false);
+            view.setLayoutParams(new ListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, imageSize));
+        }
+
+        ImageView imageView = (ImageView)view.findViewById(R.id.image);
+        imageView.setImageBitmap(images.get(position));
+
+        return view;
+    }
+
+    private class ImagesDownloadTask extends AsyncTask<String, Bitmap, Void> {
+        private int offset;
+
+        private ImagesDownloadTask(int offset) {
+            this.offset = offset;
+        }
+
         @Override
-        protected Bitmap doInBackground(String... strings) {
-            try {
-                URLConnection connection = new URL(strings[0]).openConnection();
-                return BitmapFactory.decodeStream(connection.getInputStream());
-            } catch (Exception e) {
-                Log.w(ImageAdapter.class.getName(), e);
+        protected Void doInBackground(String... strings) {
+            for (String url : strings) {
+                try {
+                    URLConnection connection = new URL(url).openConnection();
+                    publishProgress(BitmapFactory.decodeStream(connection.getInputStream()));
+                } catch (Exception e) {
+                    Log.w(ImageAdapter.class.getName(), e);
+                }
             }
             return null;
         }
 
         @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            images.add(bitmap);
+        protected void onPreExecute() {
+            notifyDataSetChanged();
+        }
+
+        @Override
+        protected void onProgressUpdate(Bitmap... values) {
+            images.set(offset++, values[0]);
             notifyDataSetChanged();
         }
     }

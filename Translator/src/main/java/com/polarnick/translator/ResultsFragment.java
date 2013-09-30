@@ -5,7 +5,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridView;
+import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import com.polarnick.polaris.services.YandexTranslateService;
 
@@ -23,7 +24,23 @@ public class ResultsFragment extends ExtFragment {
     private static final List<String> EN_RU = Arrays.asList("en", "ru");
     private static final YandexTranslateService translatorEnRu = new YandexTranslateService(ACCOUNT_KEY, EN_RU);
 
+    private final Runnable postEnableButton = new Runnable() {
+        @Override
+        public void run() {
+            moreButton.setEnabled(true);
+        }
+    };
+
+    private final Runnable allImagesLoaded = new Runnable() {
+        @Override
+        public void run() {
+            getActivity().runOnUiThread(postEnableButton);
+        }
+    };
+
     private TextView translation;
+    private ImageAdapter imageAdapter;
+    private Button moreButton;
 
     public static ResultsFragment newInstance(String query) {
         ResultsFragment fragment = new ResultsFragment();
@@ -46,11 +63,31 @@ public class ResultsFragment extends ExtFragment {
 
         translation = findViewById(R.id.translation);
 
+        moreButton = new Button(getActivity());
+        moreButton.setLayoutParams(new ListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        moreButton.setText(getString(R.string.more));
+        moreButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadNext();
+            }
+        });
+        moreButton.setEnabled(false);
+
         String query = getCurrentQuery();
         if (query != null) {
             new TranslateTask().execute(query);
-            this.<GridView>findViewById(R.id.images).setAdapter(new ImageAdapter(getActivity(), query));
+            ListView imagesView = this.findViewById(R.id.images);
+            imageAdapter = new ImageAdapter(getActivity(), query);
+            imagesView.addFooterView(moreButton);
+            imagesView.setAdapter(imageAdapter);
+            loadNext();
         }
+    }
+
+    private void loadNext() {
+        moreButton.setEnabled(false);
+        imageAdapter.loadMore(allImagesLoaded);
     }
 
     public String getCurrentQuery() {
