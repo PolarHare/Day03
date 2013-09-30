@@ -40,7 +40,7 @@ public class BingSearchService {
             "&ImageFilters=%%27Size%%3AWidth%%3A" + "%d" + "%%2BSize%%3AHeight%%3A" + "%d" + "%%27" +//image width and height recommendation
             "&$top=" + "%d" +//image count limit
             "&Adult=%%27" + "%s" + "%%27" +//filter strictness
-            "&skip=" + "%d";//offset of images(count of images to be skipped - useful to load packs of images one by one on demand)
+            "&$skip=" + "%d";//offset of images(count of images to be skipped - useful to load packs of images one by one on demand)
 
     private final String accountKeyEnc;
     private final ExecutorService threadsPool;
