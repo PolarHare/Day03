@@ -1,6 +1,7 @@
 package com.polarnick.polaris.services;
 
 
+import com.google.common.base.Preconditions;
 import com.polarnick.polaris.concurrency.AsyncCallback;
 import com.polarnick.polaris.concurrency.AsyncCallbackWithFailures;
 import org.apache.commons.codec.binary.Base64;
@@ -30,14 +31,16 @@ public class BingSearchService {
 
     private static final String ENCODING_CHARSET = "UTF-8";
     /**
-     * Arguments: - query text(String), image width(int), image height(int), image count(int)
+     * Arguments: query text(String), image width(int), image height(int), image count(int), filter strictness(String),
+     * count of images to be skipped(offset) (int)
      */
     private static final String IMAGE_SEARCH = "https://api.datamarket.azure.com/Bing/Search/v1/Composite" +
             "?Sources=%%27image%%27" +
             "&Query=%%27" + "%s" + "%%27" +//search query
             "&ImageFilters=%%27Size%%3AWidth%%3A" + "%d" + "%%2BSize%%3AHeight%%3A" + "%d" + "%%27" +//image width and height recommendation
             "&$top=" + "%d" +//image count limit
-            "&Adult=%%27" + "%s" + "%%27";//filter strictness
+            "&Adult=%%27" + "%s" + "%%27" +//filter strictness
+            "&skip=" + "%d";//offset of images(count of images to be skipped - useful to load packs of images one by one on demand)
 
     private final String accountKeyEnc;
     private final ExecutorService threadsPool;
@@ -56,12 +59,18 @@ public class BingSearchService {
     }
 
     public void searchAsync(final String text, final AsyncCallbackWithFailures<List<ResultImage>, Exception> allImagesLoaded,
-                            final AsyncCallback<ResultImage> nextImageLoaded) {
+                            @Nullable final AsyncCallback<ResultImage> nextImageLoaded) {
+        searchAsync(text, 0, allImagesLoaded, nextImageLoaded);
+    }
+
+    public void searchAsync(final String text, final int offset, final AsyncCallbackWithFailures<List<ResultImage>, Exception> allImagesLoaded,
+                            @Nullable final AsyncCallback<ResultImage> nextImageLoaded) {
+        Preconditions.checkNotNull(allImagesLoaded, "AllImagesLoaded callback must not be null! Because you must handle possible exceptions.");
         threadsPool.execute(new Runnable() {
             @Override
             public void run() {
                 try {
-                    List<ResultImage> resultImages = search(text, nextImageLoaded);
+                    List<ResultImage> resultImages = search(text, offset, nextImageLoaded);
                     allImagesLoaded.onSuccess(resultImages);
                 } catch (IOException e) {
                     allImagesLoaded.onFailure(new IOException("Internet connection problem!", e));
@@ -73,8 +82,12 @@ public class BingSearchService {
     }
 
     public List<ResultImage> search(String text, @Nullable AsyncCallback<ResultImage> nextImageLoaded) throws IOException, JSONException {
+        return search(text, nextImageLoaded);
+    }
+
+    public List<ResultImage> search(String text, int offset, @Nullable AsyncCallback<ResultImage> nextImageLoaded) throws IOException, JSONException {
         String url = String.format(IMAGE_SEARCH, URLEncoder.encode(text, ENCODING_CHARSET),
-                optimalWidth, optimalHeight, imageLimit, filterStrictness);
+                optimalWidth, optimalHeight, imageLimit, filterStrictness, offset);
 
         HttpGet getRequest = new HttpGet(url);
         getRequest.setHeader("Authorization", "Basic " + accountKeyEnc);
