@@ -82,7 +82,7 @@ public class BingSearchService {
     }
 
     public List<ResultImage> search(String text, @Nullable AsyncCallback<ResultImage> nextImageLoaded) throws IOException, JSONException {
-        return search(text, nextImageLoaded);
+        return search(text, 0, nextImageLoaded);
     }
 
     public List<ResultImage> search(String text, int offset, @Nullable AsyncCallback<ResultImage> nextImageLoaded) throws IOException, JSONException {
