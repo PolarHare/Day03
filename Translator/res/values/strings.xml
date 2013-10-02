@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="search_hint">Search here…</string>
+    <string name="search_hint">Enter text here…</string>
     <string name="search_go">Go!</string>
-    <string name="translation">Translation:</string>
-    <string name="more">MOAR!!</string>
+    <string name="translation">Translation: </string>
+    <string name="more">More...</string>
+    <string name="on_error_ok">OK</string>
 </resources>

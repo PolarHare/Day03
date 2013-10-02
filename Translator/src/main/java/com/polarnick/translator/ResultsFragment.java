@@ -1,7 +1,11 @@
 package com.polarnick.translator;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -96,18 +100,39 @@ public class ResultsFragment extends ExtFragment {
     }
 
     private class TranslateTask extends AsyncTask<String, Void, String> {
+
+        IOException exception = null;
+
         @Override
         protected String doInBackground(String... strings) {
             try {
                 return translatorEnRu.translate(strings[0]);
             } catch (IOException e) {
-                return "Translation server error";
+                exception = e;
+                return null;
             }
         }
 
         @Override
         protected void onPostExecute(String s) {
-            translation.setText(s);
+            if (exception != null) {
+                final Activity activity = getActivity();
+                Log.e(this.getClass().getName(), "Exception caught while translating: " + exception.getMessage());
+                new AlertDialog.Builder(activity)
+                        .setMessage(exception.getMessage())
+                        .setPositiveButton(R.string.on_error_ok,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        if (activity instanceof ReturnableActivity) {
+                                            ((ReturnableActivity) activity).returnBack();
+                                        }
+                                    }
+                                }).create().show();
+            }
+            if (s != null) {
+                translation.setText(s);
+            }
         }
     }
 }

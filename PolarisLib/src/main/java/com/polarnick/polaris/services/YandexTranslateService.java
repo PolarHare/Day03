@@ -44,25 +44,29 @@ public class YandexTranslateService {
                     String translated = translate(text);
                     callback.onSuccess(translated);
                 } catch (IOException e) {
-                    callback.onFailure(new IOException("Internet connection problem!", e));
+                    callback.onFailure(e);
                 }
             }
         });
     }
 
     public String translate(String text) throws IOException {
-        String fromLanguage = recognizeLanguage(text);
-        String toLanguage = null;
-        for (String language : languages) {
-            if (!language.equalsIgnoreCase(fromLanguage)) {
-                toLanguage = language;
-                break;
+        try {
+            String fromLanguage = recognizeLanguage(text);
+            String toLanguage = null;
+            for (String language : languages) {
+                if (!language.equalsIgnoreCase(fromLanguage)) {
+                    toLanguage = language;
+                    break;
+                }
             }
-        }
-        Preconditions.checkState(toLanguage != null, "ToLanguage should be always found. At least because of" +
-                " that there are two languages chosen!");
+            Preconditions.checkState(toLanguage != null, "ToLanguage should be always found. At least because of" +
+                    " that there are two languages chosen!");
 
-        return translate(text, toLanguage);
+            return translate(text, toLanguage);
+        } catch (IOException e) {
+            throw new IOException("Internet connection problem!", e);
+        }
     }
 
     private String recognizeLanguage(String text) throws IOException {
