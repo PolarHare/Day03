@@ -3,13 +3,11 @@ package com.polarnick.translator;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
+import android.widget.*;
 
 /**
  * @author Никита
@@ -31,10 +29,23 @@ public class SearchFragment extends ExtFragment {
         }
     };
 
+    private final TextView.OnEditorActionListener onEnterKeyListener = new TextView.OnEditorActionListener() {
+        @Override
+        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+            if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                search(v.getText().toString());
+                return true;
+            }
+            return false;
+        }
+    };
+
     private final ListView.OnItemClickListener recentQueryClickListener = new ListView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            search(adapter.getQuery(position));
+            String query = adapter.getQuery(position);
+            searchInput.setText(query);
+            search(query);
         }
     };
 
@@ -71,6 +82,7 @@ public class SearchFragment extends ExtFragment {
         dual = second != null && second.getVisibility() == View.VISIBLE;
 
         searchInput = findViewById(R.id.search_input);
+        searchInput.setOnEditorActionListener(onEnterKeyListener);
         this.<Button>findViewById(R.id.search_button).setOnClickListener(searchButtonListener);
         ListView listView = this.findViewById(R.id.recent_queries);
         listView.setAdapter(adapter);

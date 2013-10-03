@@ -7,7 +7,7 @@ import android.os.Bundle;
 /**
  * @author Никита
  */
-public class ResultsActivity extends Activity implements ReturnableActivity {
+public class ResultsActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -23,10 +23,5 @@ public class ResultsActivity extends Activity implements ReturnableActivity {
                     .add(android.R.id.content, resultsFragment)
                     .commit();
         }
-    }
-
-    @Override
-    public void returnBack() {
-        finish();
     }
 }

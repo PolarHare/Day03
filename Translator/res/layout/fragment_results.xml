@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
-    <LinearLayout android:orientation="horizontal"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+    <LinearLayout android:id="@+id/translation_block"
+                  android:orientation="horizontal"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:padding="10dp" >
@@ -19,7 +19,18 @@
     </LinearLayout>
     <ListView android:id="@+id/images"
               android:layout_width="match_parent"
-              android:layout_height="match_parent"
+              android:layout_height="wrap_content"
+
+              android:layout_below="@id/translation_block"
+              android:layout_alignParentBottom="true"
+
               android:divider="@android:color/transparent"
-              android:dividerHeight="10dp" />
-</LinearLayout>
+              android:dividerHeight="10dp"
+              android:listSelector="@android:color/transparent"
+              android:clickable="false" />
+    <ProgressBar android:id="@+id/translation_progress"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Large"
+                 android:layout_centerInParent="true"/>
+</RelativeLayout>
