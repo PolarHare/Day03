@@ -32,7 +32,7 @@ public class SearchFragment extends ExtFragment {
     private final TextView.OnEditorActionListener onEnterKeyListener = new TextView.OnEditorActionListener() {
         @Override
         public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-            if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+            if (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
                 search(v.getText().toString());
                 return true;
             }
